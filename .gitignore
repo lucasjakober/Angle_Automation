@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Shapefiles
+/Shapefiles
+
+# .DS_Store
+.DS_Store
