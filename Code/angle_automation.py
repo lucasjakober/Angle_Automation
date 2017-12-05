@@ -19,25 +19,20 @@ Processing.updateAlgsList()
 
 
 def step_1():
-	c_path_in = os.path.join(utility.getPath_inputs()['step_1'],os.path.basename(utility.getPath_centerlines()))
-	g_path_in = os.path.join(utility.getPath_inputs()['step_1'],os.path.basename(utility.getPath_glaciers()))
+	in_a = os.path.join(utility.getPath_inputs()['step_1'],os.path.basename(utility.getPath_centerlines()))
+	in_b = os.path.join(utility.getPath_inputs()['step_1'],os.path.basename(utility.getPath_glaciers()))
+
+	out_a = utility.getPath_outputs()['step_1']
+	out_b = utility.getPath_outputs()['step_1']
 	
-	print c_path_in
-	print g_path_in
+	utility.copyShapefile(in_a,out_a)
+	utility.copyShapefile(in_b,out_b)
 
-	c_path_out = utility.getPath_outputs()['step_1']
-	g_path_out = utility.getPath_outputs()['step_1']
+	out_a = os.path.join(utility.getPath_outputs()['step_1'],utility.getPath_centerlines())
+	out_b = os.path.join(utility.getPath_outputs()['step_1'],utility.getPath_glaciers())
 
-	
-	utility.copyShapefile(c_path_in,c_path_out)
-	utility.copyShapefile(g_path_in,g_path_out)
-
-	c_path_out = os.path.join(utility.getPath_outputs()['step_1'],utility.getPath_centerlines())
-	g_path_out = os.path.join(utility.getPath_outputs()['step_1'],utility.getPath_glaciers())
-
-
-	centerline = QgsVectorLayer(c_path_out, os.path.basename(c_path_out), "ogr")
-	glacier = QgsVectorLayer(g_path_out, os.path.basename(g_path_out), "ogr")
+	centerline = QgsVectorLayer(out_a, os.path.basename(out_a), "ogr")
+	glacier = QgsVectorLayer(out_b, os.path.basename(out_b), "ogr")
 
 	# Check that input files are valid.
 	if not centerline.isValid():
@@ -77,7 +72,26 @@ def step_1():
 	print "%d fields deleted from %s" % (fieldsDeleted, centerline.name())
 
 
+def step_2():
+	# Step 3: Reproject both shapefiles to EPSG3395 WGS '84 Transverse Mercator (for distance calculations in meters)
+	in_a = os.path.join(utility.getPath_outputs()['step_1'],utility.getPath_centerlines())
+	in_b = os.path.join(utility.getPath_outputs()['step_1'],utility.getPath_glaciers())
 
+	out_a = os.path.join(utility.getPath_outputs()['step_2'],'reproject_'+os.path.basename(in_a))
+	out_b = os.path.join(utility.getPath_outputs()['step_2'],'reproject_'+os.path.basename(in_b))
+
+	centerline = QgsVectorLayer(in_a, os.path.basename(in_a), "ogr")
+	glacier = QgsVectorLayer(in_b, os.path.basename(in_b), "ogr")
+
+	crs = QgsCoordinateReferenceSystem(3395, QgsCoordinateReferenceSystem.EpsgCrsId)
+	print "Coordinate Reference System (CRS) %s %s will be used." % (crs.authid(), crs.description())
+	
+	print "--> %s's CRS is: %s" % (centerline.name(),centerline.crs().authid())
+	print "		Reprojecting %s to %s %s" % (centerline.name(), crs.authid() ,crs.description())
+	processing.runalg('qgis:reprojectlayer', centerline, crs.authid(), out_a)
+	print "--> %s's CRS is: %s" % (glacier.name(),glacier.crs().authid())
+	print "		Reprojecting %s to %s %s" % (glacier.name(), crs.authid(), crs.description())
+	processing.runalg('qgis:reprojectlayer', glacier, crs.authid(), out_b)
 
 
 
