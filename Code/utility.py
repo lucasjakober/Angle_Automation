@@ -51,6 +51,12 @@ def getPath_inputs():
 def getPath_outputs():
     return settings.output_paths
 
+def getPath_all_shapefiles():
+    return settings.all_shapefiles_path
+
+def getPath_orig_shapefiles():
+    return settings.orig_shapefiles_path
+
 def getSteps():
     return settings.steps
 

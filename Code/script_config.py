@@ -9,12 +9,12 @@ def configure_folders():
 		print "Invalid main_path parameter in settings.py"
 		sys.exit(1)
 
-	shapefile_folder = os.path.join(main_path,'Shapefiles')
-	input_folder = os.path.join(shapefile_folder,'input')
-	if not os.path.isdir(input_folder):
-		os.mkdir(input_folder)
+	shapefile_folder = utility.getPath_all_shapefiles()
+	input_folder = utility.getPath_orig_shapefiles()
 	if not os.path.isdir(shapefile_folder):
 		os.mkdir(shapefile_folder)
+	if not os.path.isdir(input_folder):
+		os.mkdir(input_folder)
 	inputs = utility.getPath_inputs()
 	outputs = utility.getPath_outputs()
 	for key in inputs:
@@ -35,7 +35,11 @@ def configure_folders():
 	utility.copyShapefile(utility.getPath_centerlines(),input_folder)
 	utility.copyShapefile(utility.getPath_glaciers(),input_folder)
 
+	utility.copyShapefile(utility.getPath_centerlines(),inputs['step_1'])
+	utility.copyShapefile(utility.getPath_glaciers(),inputs['step_1'])
+
 configure_folders()
+
 
 
 
